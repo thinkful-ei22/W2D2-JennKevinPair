@@ -14,7 +14,7 @@ const API_KEY = 'AIzaSyAhWgsBh9umavp5wNC0uXCCNS4T0nH1UdY';
 
 */
 const store = {
-  videos: []
+  videos: [], pageToken: null, searchTerm: null,
 };
 
 const BASE_URL = 'https://www.googleapis.com/youtube/v3/search';
@@ -29,6 +29,30 @@ const fetchVideos = function(searchTerm, callback) {//Create a `fetchVideos` fun
   $.getJSON(BASE_URL, query, callback);//Make a getJSON call using the query object and sending the provided callback in as the last argument
 };
 
+const handleMoreVideoRequest=function(){
+  $('#next-page').on('click', function(event){
+    event.preventDefault();//Prevent default event
+
+    fetchMoreVideos(store.searchTerm, store.pageToken, ((response)=>{ //Invoke the `fetchVideos` function, sending in the search value
+      store.pageToken=response.nextPageToken;  
+      const results = decorateResponse(response); //Inside the callback, send the API response through the `decorateResponse` function
+      console.log(response);
+      addVideosToStore(results); //Inside the callback, add the decorated response into your store using the `addVideosToStore` function
+      render();
+    }));
+  });
+};
+
+const fetchMoreVideos = function(searchTerm, pageToken, callback) {//Create a `fetchVideos` function that receives a `searchTerm` and `callback`
+  const query = {
+    q: searchTerm,//Use `searchTerm` to construct the right query object based on the Youtube API docs
+    part: 'snippet',
+    key: API_KEY,
+    type: 'video',
+    pageToken,
+  };
+  $.getJSON(BASE_URL, query, callback);//Make a getJSON call using the query object and sending the provided callback in as the last argument
+};
 const decorateResponse = function(response) {//Create a `decorateResponse` function that receives the Youtube API response
   return response.items.map(item => ( //Map through the response object's `items` array
     {
@@ -49,10 +73,8 @@ const generateVideoItemHtml = function(video) { //Create a `generateVideoItemHtm
     allow="autoplay; encrypted-media" allowfullscreen></iframe>
   </li>`; //Using the object, return an HTML string containing all the expected data
 };
-//<a href ="http://www.youtube.com/watch?v=${video.id}"> <img src = "${video.thumbnail}"></a>
-{/* <iframe src="http://www.youtube.com/v/${video.id}"></iframe> */}
-{/* <iframe width="560" height="315" src="https://www.youtube.com/embed/4sEV1lMn64k" frameborder="0" 
-allow="autoplay; encrypted-media" allowfullscreen></iframe> */}
+//<a href ="http://www.youtube.com/watch?v=${video.id}"> <img src = "${video.thumbnail}"></a> (clickable picture version)
+
 
 const addVideosToStore = function(videos) {//Create a `addVideosToStore` function that receives an array of decorated video 
 // objects
@@ -69,7 +91,8 @@ const render = function() { //Create a `render` function
 const handleFormSubmit = function() { //Create a `handleFormSubmit` function that adds an event listener to the form
   $('form').on('submit', function(event){
     event.preventDefault();//Prevent default event
-    const searchTerm=$('#search-term').val(); //Retrieve the search input from the DOM
+    const searchTerm=$('#search-term').val();
+    store.searchTerm=searchTerm; //Retrieve the search input from the DOM
     $('#search-term').val('');//Clear the search input field
     fetchVideos(searchTerm, ((response)=>{ //Invoke the `fetchVideos` function, sending in the search value
       const results = decorateResponse(response); //Inside the callback, send the API response through the `decorateResponse` function
@@ -83,4 +106,5 @@ const handleFormSubmit = function() { //Create a `handleFormSubmit` function tha
 // When DOM is ready:
 $(function () {
   handleFormSubmit();//Run `handleFormSubmit` to bind the event listener to the DOM
+  handleMoreVideoRequest();
 });
