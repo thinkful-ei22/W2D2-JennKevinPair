@@ -1,4 +1,6 @@
-const API_KEY = 'YOUR_KEY_HERE';
+'use strict';
+/*eslint-env jquery*/
+const API_KEY = 'AIzaSyAhWgsBh9umavp5wNC0uXCCNS4T0nH1UdY';
 
 /*
   We want our store to hold a `videos` array of "decorated" objects - i.e. objects that
@@ -18,7 +20,7 @@ const store = {
 
 // TASK: Add the Youtube Search API Base URL here:
 // Documentation is here: https://developers.google.com/youtube/v3/docs/search/list#usage
-const BASE_URL = '';
+const BASE_URL = 'https://www.googleapis.com/youtube/v3/search';
 
 // TASK:
 // 1. Create a `fetchVideos` function that receives a `searchTerm` and `callback`
@@ -26,8 +28,15 @@ const BASE_URL = '';
 // 3. Make a getJSON call using the query object and sending the provided callback in as the last argument
 // TEST IT! Execute this function and console log the results inside the callback.
 const fetchVideos = function(searchTerm, callback) {
-
+  const query = {
+    q: searchTerm,
+    part: 'snippet',
+    key: API_KEY,
+  };
+  $.getJSON(BASE_URL, query, callback);
+  //
 };
+
 
 // TASK:
 // 1. Create a `decorateResponse` function that receives the Youtube API response
@@ -38,15 +47,26 @@ const fetchVideos = function(searchTerm, callback) {
 // TEST IT! Grab an example API response and send it into the function - make sure
 // you get back the object you want.
 const decorateResponse = function(response) {
-
+  return response.items.map(item => ( 
+    {
+      id: item.id.videoId,
+      title: item.snippet.title,
+      thumbnail: item.snippet.thumbnails.default.url,
+    }));
 };
+fetchVideos('mango', decorateResponse);
 
 // TASK:
 // 1. Create a `generateVideoItemHtml` function that receives the decorated object
 // 2. Using the object, return an HTML string containing all the expected data
 // TEST IT!
 const generateVideoItemHtml = function(video) {
-
+  return `{
+    "id": ${video.id.videoId},
+    "title": ${video.snippet.title},
+    "thumbnail": ${video.snippet.thumbnails.default.url},
+     }`;
+  //$('.results').html(decorateResponse);
 };
 
 // TASK:
@@ -54,7 +74,7 @@ const generateVideoItemHtml = function(video) {
 // objects and sets the array as the value held in store.videos
 // TEST IT!
 const addVideosToStore = function(videos) {
-
+  store.videos = videos;
 };
 
 // TASK:
