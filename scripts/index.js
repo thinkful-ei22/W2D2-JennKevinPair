@@ -34,7 +34,7 @@ const decorateResponse = function(response) {//Create a `decorateResponse` funct
     {
       id: item.id.videoId,
       title: item.snippet.title,
-      thumbnail: item.snippet.thumbnails.default.url,
+      thumbnail: item.snippet.thumbnails.high.url,
     }));//Return an array of objects, where each object contains the keys `id`, `title`, 
   // `thumbnail` which each hold the appropriate values from the API item object.
 };
@@ -45,9 +45,14 @@ const generateVideoItemHtml = function(video) { //Create a `generateVideoItemHtm
   return `
   <li data-id = "${video.id}">
     <h3>${video.title}</h3>
-    <a href ="http://www.youtube.com/watch?v=${video.id}"> <img src = "${video.thumbnail}"></a>
+    <iframe width="560" height="315" src="http://www.youtube.com/embed/${video.id}" frameborder="0" 
+    allow="autoplay; encrypted-media" allowfullscreen></iframe>
   </li>`; //Using the object, return an HTML string containing all the expected data
 };
+//<a href ="http://www.youtube.com/watch?v=${video.id}"> <img src = "${video.thumbnail}"></a>
+{/* <iframe src="http://www.youtube.com/v/${video.id}"></iframe> */}
+{/* <iframe width="560" height="315" src="https://www.youtube.com/embed/4sEV1lMn64k" frameborder="0" 
+allow="autoplay; encrypted-media" allowfullscreen></iframe> */}
 
 const addVideosToStore = function(videos) {//Create a `addVideosToStore` function that receives an array of decorated video 
 // objects
