@@ -24,6 +24,7 @@ const fetchVideos = function(searchTerm, callback) {//Create a `fetchVideos` fun
     q: searchTerm,//Use `searchTerm` to construct the right query object based on the Youtube API docs
     part: 'snippet',
     key: API_KEY,
+    type: 'video',
   };
   $.getJSON(BASE_URL, query, callback);//Make a getJSON call using the query object and sending the provided callback in as the last argument
 };
@@ -44,7 +45,7 @@ const generateVideoItemHtml = function(video) { //Create a `generateVideoItemHtm
   return `
   <li data-id = "${video.id}">
     <h3>${video.title}</h3>
-    <img src = "${video.thumbnail}">
+    <a href ="http://www.youtube.com/watch?v=${video.id}"> <img src = "${video.thumbnail}"></a>
   </li>`; //Using the object, return an HTML string containing all the expected data
 };
 
@@ -67,6 +68,7 @@ const handleFormSubmit = function() { //Create a `handleFormSubmit` function tha
     $('#search-term').val('');//Clear the search input field
     fetchVideos(searchTerm, ((response)=>{ //Invoke the `fetchVideos` function, sending in the search value
       const results = decorateResponse(response); //Inside the callback, send the API response through the `decorateResponse` function
+      console.log(response);
       addVideosToStore(results); //Inside the callback, add the decorated response into your store using the `addVideosToStore` function
       render(); //inside the callback, run the `render` function 
     }));
