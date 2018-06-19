@@ -43,6 +43,20 @@ const handleMoreVideoRequest=function(){
   });
 };
 
+const handlePrevVideoRequest=function(){
+  $('#previous-page').on('click', function(event){
+    event.preventDefault();//Prevent default event
+
+    fetchMoreVideos(store.searchTerm, store.pageToken, ((response)=>{ //Invoke the `fetchVideos` function, sending in the search value
+      store.pageToken=response.previousPageToken;  
+      const results = decorateResponse(response); //Inside the callback, send the API response through the `decorateResponse` function
+      console.log(response);
+      addVideosToStore(results); //Inside the callback, add the decorated response into your store using the `addVideosToStore` function
+      render();
+    }));
+  });
+};
+
 const fetchMoreVideos = function(searchTerm, pageToken, callback) {//Create a `fetchVideos` function that receives a `searchTerm` and `callback`
   const query = {
     q: searchTerm,//Use `searchTerm` to construct the right query object based on the Youtube API docs
@@ -107,4 +121,5 @@ const handleFormSubmit = function() { //Create a `handleFormSubmit` function tha
 $(function () {
   handleFormSubmit();//Run `handleFormSubmit` to bind the event listener to the DOM
   handleMoreVideoRequest();
+  handlePrevVideoRequest();
 });
